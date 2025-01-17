@@ -57,7 +57,7 @@ class WordPaginatorView(UniversalPaginator):
         self.reverse_order = not self.reverse_order
         self.generate_embeds()
         await self.update_buttons(interaction)
-        await interaction.response.edit_message(embed=self.embeds[self.current_page], view=self)
+        await interaction.response.edit_message(embed=self.pages[self.current_page], view=self)
 
     @discord.ui.select(
         placeholder="Select sorting method",
