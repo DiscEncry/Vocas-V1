@@ -18,5 +18,5 @@ class Delete(commands.Cog):
             await ctx.send(f"Word not found: {word}")
 
 # Set up the cog
-def setup(bot):
-    bot.add_cog(Delete(bot))
+async def setup(bot):
+    await bot.add_cog(Delete(bot))

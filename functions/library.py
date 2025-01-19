@@ -56,8 +56,8 @@ class WordPaginatorView(UniversalPaginator):
     async def reverse(self, interaction: discord.Interaction, button: Button):
         self.reverse_order = not self.reverse_order
         self.generate_embeds()
+        await interaction.response.edit_message(embed=self.pages[self.current_page], view=self)
         await self.update_buttons(interaction)
-        await interaction.response.edit_message(embed=self.embeds[self.current_page], view=self)
 
     @discord.ui.select(
         placeholder="Select sorting method",
@@ -70,8 +70,8 @@ class WordPaginatorView(UniversalPaginator):
     async def sort_dropdown(self, interaction: discord.Interaction, select: Select):
         self.sort_method = select.values[0]
         self.generate_embeds()
+        await interaction.response.edit_message(embed=self.pages[self.current_page], view=self)
         await self.update_buttons(interaction)
-        await interaction.response.edit_message(embed=self.embeds[self.current_page], view=self)
 
 # Create a cog class
 class Library(commands.Cog):
@@ -92,5 +92,5 @@ class Library(commands.Cog):
         await ctx.send(embed=view.pages[0], view=view)
 
 # Set up the cog
-def setup(bot):
-    bot.add_cog(Library(bot))
+async def setup(bot):
+    await bot.add_cog(Library(bot))

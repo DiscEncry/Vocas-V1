@@ -59,11 +59,27 @@ def split_into_pages(text, max_length=1000):
     return pages
 
 class EmbedPaginator(UniversalPaginator):
-    def __init__(self, ctx, embeds):
+    def __init__(self, ctx, embeds, word):
+        self.word = word
         super().__init__(ctx, embeds)
+
+        # Add new search button
         self.search_button = Button(label="Search", style=discord.ButtonStyle.secondary)
         self.search_button.callback = self.search_modal
         self.add_item(self.search_button)
+
+        # Add new add button
+        self.add_button = Button(label="Add Word", style=discord.ButtonStyle.green)
+        self.add_button.callback = self.add_word
+        self.add_item(self.add_button)
+
+    async def add_word(self, interaction):
+        if interaction.user.id != self.ctx.author.id:
+            await interaction.response.send_message("You can't use this button!", ephemeral=True)
+            return
+            
+        success, message = add_word_to_vocab(str(interaction.user.id), True, self.word)
+        await interaction.response.edit_message(content = message)
 
     async def search_modal(self, interaction):
         class SearchModal(Modal):
@@ -78,6 +94,7 @@ class EmbedPaginator(UniversalPaginator):
                 self.add_item(self.word_input)
 
             async def on_submit(self, interaction: discord.Interaction):
+                await interaction.response.defer()
                 word = self.word_input.value.lower()
                 pages = search_command(word)
 
@@ -89,6 +106,7 @@ class EmbedPaginator(UniversalPaginator):
                     )
                     self.paginator.pages = [no_result_embed]
                 else:
+                    self.word = word
                     self.paginator.pages = pages
 
                 self.paginator.current_page = 0
@@ -120,11 +138,11 @@ class Search(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def search(self, ctx, *, word):
+    async def sears(self, ctx, *, word):
         embeds = search_command(word)
         if not embeds: await ctx.send(content = "No result found.")
-        await ctx.send(embed=embeds[0], view=EmbedPaginator(ctx, embeds))
+        await ctx.send(embed=embeds[0], view=EmbedPaginator(ctx, embeds, word.lower()))
 
 # Set up the cog
-def setup(bot):
-    bot.add_cog(Search(bot))
+async def setup(bot):
+    await bot.add_cog(Search(bot))

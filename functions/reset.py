@@ -18,5 +18,5 @@ class Reset(commands.Cog):
         await ctx.send("Progress has been reset for all words.")
 
 # Set up the cog
-def setup(bot):
-    bot.add_cog(Reset(bot))
+async def setup(bot):
+    await bot.add_cog(Reset(bot))
